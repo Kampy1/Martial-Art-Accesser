@@ -10,40 +10,32 @@ MA_list = "https://en.wikipedia.org/wiki/List_of_Japanese_martial_arts"
 
 #Function to pull the list of Martial Arts
 def MartialArtsList(Arts_count): 
-    #Target we want to open
     url = MA_list
     count = 0
 
-    #List to append the arts into
     Ordered_MA_list = []
 
-    #Open with GET method
     resp = requests.get(url) 
 
-    #Code 200 is good
     if resp.status_code == 200: 
         print("Successfully opened the web page") 
 
         #Parses the HTML for Python
         soup = BeautifulSoup(resp.text, 'html.parser')
 
-        #Arts_List is the list which contains all the text ie the various arts
         Arts_list = soup.select('div.div-col > ul > li')
 
-        #Prints out the total number of Arts
         for arts in Arts_list:
             count += 1
         print(f"{count} Martial Arts found:\n")
 
-        #Puts the Arts into a 'Str' and then appends them to a list.
         for arts in Arts_list:
             arts.text
             Ordered_MA_list.append(arts.text)
-            #Also will print out the full list 1 per line if correct selection is made
+            
             if Arts_count == 0:
                 print(arts.text)
 
-        #Checks for the selection made and displays the requested number of Arts.
         if Arts_count > 0:
             chosen_arts = random.sample(Ordered_MA_list, k = Arts_count)
             for art in chosen_arts:
@@ -56,24 +48,19 @@ def MartialArtsList(Arts_count):
     else: 
         print("Error") 
 
-#Function to pull information on the selected Art
 def MA_data(option):
 
     result_list = []
 
-    #Webpage to scrape info from
     url = f"https://en.wikipedia.org/wiki/{option}"
 
     resp = requests.get(url) 
 
-    #Code 200 is good
     if resp.status_code == 200: 
         print("Successfully opened the web page") 
 
-        #Parses the HTML for Python
         soup = BeautifulSoup(resp.text, 'html.parser')
 
-        #Arts_List is the list which contains all the text ie the various arts
         Details_list = soup.select('div.div-col > ul > li')
 
         for info in Details_list:
