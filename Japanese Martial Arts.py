@@ -1,39 +1,98 @@
 import requests
+from bs4 import BeautifulSoup
+import sys
+import random
+
+#Added for testing
+import time
 
 MA_list = "https://en.wikipedia.org/wiki/List_of_Japanese_martial_arts"
 
-def fetch_data(option):
-    result = []
+#Function to pull the list of Martial Arts
+def MartialArtsList(Arts_count): 
+    #Target we want to open
+    url = MA_list
+    count = 0
+
+    #List to append the arts into
+    Ordered_MA_list = []
+
+    #Open with GET method
+    resp = requests.get(url) 
+
+    #Code 200 is good
+    if resp.status_code == 200: 
+        print("Successfully opened the web page") 
+
+        #Parses the HTML for Python
+        soup = BeautifulSoup(resp.text, 'html.parser')
+
+        #Arts_List is the list which contains all the text ie the various arts
+        Arts_list = soup.select('div.div-col > ul > li')
+
+        #Prints out the total number of Arts
+        for arts in Arts_list:
+            count += 1
+        print(f"{count} Martial Arts found:\n")
+
+        #Puts the Arts into a 'Str' and then appends them to a list.
+        for arts in Arts_list:
+            arts.text
+            Ordered_MA_list.append(arts.text)
+            #Also will print out the full list 1 per line if correct selection is made
+            if Arts_count == 0:
+                print(arts.text)
+
+        #Checks for the selection made and displays the requested number of Arts.
+        if Arts_count > 0:
+            chosen_arts = random.sample(Ordered_MA_list, k = Arts_count)
+            for art in chosen_arts:
+                print(art)
+        elif Arts_count == 0:
+            pass
+        else:
+            sys.exit("Error in retrieval. Abberant number entered. Please try again.")
+
+    else: 
+        print("Error") 
+
+#Function to pull information on the selected Art
+def MA_data(option):
+
+    result_list = []
+
+    #Webpage to scrape info from
     url = f"https://en.wikipedia.org/wiki/{option}"
 
-    while len(result) < count:
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            result.extend(data["results"])
+    resp = requests.get(url) 
 
-            url = data["next"]
+    #Code 200 is good
+    if resp.status_code == 200: 
+        print("Successfully opened the web page") 
 
-        except requests.HTTPError as e:
-            print(f"Error fetching data {e}")
-            return None
-        if url == None:
-            break    
-    
-    print(f"Martial Arts Found: {len(result)}")
-    for art in result:
-        return result[:count]
+        #Parses the HTML for Python
+        soup = BeautifulSoup(resp.text, 'html.parser')
 
-count = int(input("How many entities would you like to see? "))
+        #Arts_List is the list which contains all the text ie the various arts
+        Details_list = soup.select('div.div-col > ul > li')
 
-print("what Martial Art would you like to learn about?")
-Martial_Art = input()
+        for info in Details_list:
+            print(info.text)
 
-result = fetch_data(Martial_Art)
+#NEXT STEP!! Pulling information on Arts
+
+print("How many entities would you like to see? Enter '0' for all entries")
+count = int(input())
+
+MartialArtsList(count)
+
+print("What Martial Art would you like to learn about?")
+Martial_Art = str(input())
+
+result = MA_data(Martial_Art)
 
 if result:
     for art in result:
-        print(art["name"])
+        print(f"What would you like to learn about {Martial_Art}?")
 else:
     print("Unable to download data")
